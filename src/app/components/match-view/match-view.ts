@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild, signal, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, OnInit, ViewChild, signal, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import Hls from 'hls.js';
 
 interface Channel {
@@ -23,9 +23,16 @@ export class MatchView implements OnInit, OnDestroy {
   isLoading = signal(true);
   errorMsg = signal('');
   supportsPiP = signal(false);
+  isBrowser = false;
+
+  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   async ngOnInit() {
-    this.supportsPiP.set(document.pictureInPictureEnabled);
+    if (this.isBrowser) {
+      this.supportsPiP.set(document.pictureInPictureEnabled);
+    }
     try {
       const res = await fetch('/channels.json');
       const data = await res.json();
@@ -46,10 +53,19 @@ export class MatchView implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMsg.set('');
     
+    if (!this.isBrowser) return;
+
     const video = this.videoElementRef.nativeElement;
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const proxyUrl = isLocalhost ? 'http://localhost:8080/' : '';
-    const streamUrl = proxyUrl + channel.url;
+    
+    let streamUrl = channel.url;
+    if (isLocalhost) {
+      streamUrl = 'http://localhost:8080/' + channel.url;
+    } else {
+      // In production (Vercel), use the serverless rewrite proxy to bypass CORS
+      const urlWithoutProtocol = channel.url.replace(/^https?:\/\//, '');
+      streamUrl = '/api/proxy/' + urlWithoutProtocol;
+    }
     
     if (this.hls) {
       this.hls.destroy();
