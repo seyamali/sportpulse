@@ -47,7 +47,8 @@ export class MatchView implements OnInit, OnDestroy {
     this.errorMsg.set('');
     
     const video = this.videoElementRef.nativeElement;
-    const proxyUrl = 'http://localhost:8080/';
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const proxyUrl = isLocalhost ? 'http://localhost:8080/' : '';
     const streamUrl = proxyUrl + channel.url;
     
     if (this.hls) {
