@@ -56,23 +56,23 @@ export class MatchView implements OnInit, OnDestroy {
     if (!this.isBrowser) return;
 
     const video = this.videoElementRef.nativeElement;
+    let streamUrl = channel.url;
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     
-    let streamUrl = channel.url;
-    if (isLocalhost) {
+    const isSafariOrIOS = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent) || /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (this.isBrowser && isLocalhost) {
       streamUrl = 'http://localhost:8080/' + channel.url;
-    } else {
-      // In production (Vercel), use the serverless rewrite proxy to bypass CORS
-      const urlWithoutProtocol = channel.url.replace(/^https?:\/\//, '');
-      streamUrl = '/api/proxy/' + urlWithoutProtocol;
+    } else if (this.isBrowser && !isSafariOrIOS) {
+      // In production for Android/Chrome, Vercel IPs get blocked by ToffeeLive (502 Bad Gateway).
+      // We'll use corsproxy.io as a public fallback.
+      streamUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(channel.url);
     }
     
     if (this.hls) {
       this.hls.destroy();
       this.hls = null;
     }
-
-    const isSafariOrIOS = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent) || /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isSafariOrIOS && video.canPlayType('application/vnd.apple.mpegurl')) {
       // Prioritize native HLS player for iOS/Safari. It naturally bypasses CORS restrictions
