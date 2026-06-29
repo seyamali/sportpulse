@@ -1,0 +1,14 @@
+<div class="relative min-h-[90vh] flex w-full items-center justify-center overflow-hidden">
+  <app-hero-carousel class="w-full block" *ngIf="featuredMatches().length > 0" [matches]="featuredMatches()"></app-hero-carousel>
+  
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="absolute inset-0 flex items-center justify-center z-50">
+    <div class="animate-pulse w-[300px] sm:w-[400px] h-[500px] sm:h-[600px] bg-gray-800/50 rounded-[2.5rem]"></div>
+  </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
+  <app-upcoming-matches *ngIf="upcomingMatches().length > 0" [matches]="upcomingMatches()"></app-upcoming-matches>
+  <app-recent-results *ngIf="recentMatches().length > 0" [matches]="recentMatches()"></app-recent-results>
+</div>

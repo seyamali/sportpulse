@@ -1,0 +1,87 @@
+<div class="max-w-screen-xl mx-auto p-4 flex flex-col lg:flex-row gap-6 h-full pb-10">
+  <!-- Video Player Section -->
+  <div class="flex-1 rounded-2xl overflow-hidden bg-black shadow-[0_0_30px_rgba(34,197,94,0.1)] border border-gray-800 flex flex-col h-[50vh] lg:h-[70vh]">
+    
+    <div class="p-4 border-b border-gray-800 bg-gray-900 flex justify-between items-center">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+        {{ activeChannel()?.name || 'Loading Stream...' }}
+      </h2>
+      <span class="text-xs font-bold px-2.5 py-1 bg-green-500/20 text-green-400 rounded-md uppercase tracking-wider">Live</span>
+    </div>
+    
+    <div class="relative w-full flex-1 bg-black flex items-center justify-center">
+      <!-- Loading State -->
+      <div *ngIf="isLoading()" class="absolute inset-0 flex items-center justify-center bg-gray-900/90 z-10 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-12 h-12 border-4 border-gray-700 border-t-green-500 rounded-full animate-spin"></div>
+          <p class="text-green-500 font-medium animate-pulse">Buffering stream...</p>
+        </div>
+      </div>
+      
+      <!-- Error State -->
+      <div *ngIf="errorMsg()" class="absolute inset-0 flex items-center justify-center bg-gray-900 z-10 flex-col gap-3 p-6 text-center">
+        <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+          <svg class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <p class="text-red-400 font-semibold text-lg">{{ errorMsg() }}</p>
+        <button (click)="activeChannel() && selectChannel(activeChannel()!)" class="mt-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors text-sm font-medium">
+          Try Again
+        </button>
+      </div>
+
+      <video #videoPlayer class="w-full h-full object-contain outline-none" controls playsinline></video>
+    </div>
+  </div>
+
+  <!-- Channel List Sidebar -->
+  <div class="w-full lg:w-[350px] flex flex-col gap-4">
+    <div class="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-2xl p-5 shadow-lg flex flex-col lg:h-[70vh]">
+      <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+          </svg>
+          Channels
+        </h3>
+        <span class="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded-md">{{ channels().length }} Available</span>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+        <button 
+          *ngFor="let channel of channels()" 
+          (click)="selectChannel(channel)"
+          class="w-full text-left p-3.5 rounded-xl transition-all border flex items-center gap-4 group"
+          [ngClass]="activeChannel()?.id === channel.id ? 'bg-green-500/10 border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.15)]' : 'bg-gray-800/50 border-transparent hover:bg-gray-800 hover:border-gray-700'">
+          
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center shrink-0 border transition-colors"
+               [ngClass]="activeChannel()?.id === channel.id ? 'bg-green-500/20 border-green-500/30' : 'bg-gray-900 border-gray-700 group-hover:border-gray-600'">
+            <svg class="w-6 h-6 transition-colors" [ngClass]="activeChannel()?.id === channel.id ? 'text-green-500' : 'text-gray-500 group-hover:text-gray-300'" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+              <path d="M8 15h8l-4-7z"/>
+            </svg>
+          </div>
+          
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold truncate transition-colors"
+               [ngClass]="activeChannel()?.id === channel.id ? 'text-green-400' : 'text-gray-300 group-hover:text-white'">
+               {{ channel.name }}
+            </p>
+            <p class="text-xs mt-1 transition-opacity" 
+               [ngClass]="activeChannel()?.id === channel.id ? 'text-green-500/80' : 'text-gray-500'">
+               {{ activeChannel()?.id === channel.id ? 'Watching Now' : 'Tap to watch' }}
+            </p>
+          </div>
+          
+          <div *ngIf="activeChannel()?.id === channel.id" class="flex gap-1">
+            <span class="w-1.5 h-4 bg-green-500 rounded-full animate-[pulse_1s_ease-in-out_infinite]"></span>
+            <span class="w-1.5 h-6 bg-green-500 rounded-full animate-[pulse_1s_ease-in-out_infinite_0.2s]"></span>
+            <span class="w-1.5 h-3 bg-green-500 rounded-full animate-[pulse_1s_ease-in-out_infinite_0.4s]"></span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

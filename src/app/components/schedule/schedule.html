@@ -1,0 +1,107 @@
+<div class="max-w-screen-xl mx-auto p-4 py-8">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+      <svg class="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      Today's Matches
+    </h1>
+    <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm font-medium border border-gray-700 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-green-500"></span> Live Data
+    </span>
+  </div>
+
+  <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="w-12 h-12 border-4 border-gray-700 border-t-green-500 rounded-full animate-spin"></div>
+    <p class="text-gray-400 font-medium">Fetching real-time data...</p>
+  </div>
+  
+  <div *ngIf="errorMsg()" class="flex flex-col items-center justify-center py-20 gap-4 bg-gray-900/50 rounded-2xl border border-gray-800 p-8 text-center max-w-lg mx-auto">
+    <svg class="w-12 h-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <p class="text-gray-300 text-lg">{{ errorMsg() }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!isLoading() && matches().length > 0">
+    
+    <div *ngFor="let match of matches()" 
+         [routerLink]="['/match', match.id]"
+         class="bg-gray-900/50 cursor-pointer backdrop-blur-md border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-600 transition-all duration-300 group flex flex-col h-full shadow-lg hover:shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+      
+      <!-- Card Header -->
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/80">
+        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider truncate mr-2">{{ match.group }}</span>
+        
+        <span *ngIf="match.status === 'LIVE'" class="flex items-center gap-1.5 px-2 py-0.5 bg-red-500/10 text-red-500 text-xs font-bold rounded-md uppercase tracking-widest shrink-0">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
+        </span>
+        <span *ngIf="match.status === 'UPCOMING'" class="px-2 py-0.5 bg-gray-800 text-gray-300 text-xs font-bold rounded-md uppercase tracking-widest shrink-0">
+          UPCOMING
+        </span>
+        <span *ngIf="match.status === 'FINISHED'" class="px-2 py-0.5 bg-gray-800 text-gray-400 text-xs font-bold rounded-md uppercase tracking-widest shrink-0">
+          FT
+        </span>
+      </div>
+
+      <!-- Teams Area -->
+      <div class="p-6 flex-1 flex justify-between items-center relative overflow-hidden">
+        
+        <!-- Home Team -->
+        <div class="flex flex-col items-center gap-3 z-10 w-2/5">
+          <img [src]="match.homeFlag" alt="Home Team" class="w-16 h-16 object-contain drop-shadow-lg group-hover:scale-110 transition-transform">
+          <span class="font-bold text-white text-center text-sm md:text-base leading-tight">{{ match.homeTeam }}</span>
+        </div>
+
+        <!-- VS Badge or Score -->
+        <div class="flex flex-col items-center justify-center z-10 w-1/5">
+          <div *ngIf="match.status === 'UPCOMING'" class="w-10 h-10 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-bold text-gray-400 z-10 shadow-inner">
+            VS
+          </div>
+          <div *ngIf="match.status !== 'UPCOMING'" class="flex flex-col items-center">
+            <span class="text-3xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+              {{ match.homeScore !== null ? match.homeScore : 0 }} - {{ match.awayScore !== null ? match.awayScore : 0 }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Away Team -->
+        <div class="flex flex-col items-center gap-3 z-10 w-2/5">
+          <img [src]="match.awayFlag" alt="Away Team" class="w-16 h-16 object-contain drop-shadow-lg group-hover:scale-110 transition-transform">
+          <span class="font-bold text-white text-center text-sm md:text-base leading-tight">{{ match.awayTeam }}</span>
+        </div>
+        
+        <!-- Decorative Background Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent opacity-50"></div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="p-4 bg-gray-900/90 border-t border-gray-800 flex flex-col gap-3">
+        <div class="flex items-center justify-between text-sm text-gray-400">
+          <div class="flex items-center gap-1.5 font-medium">
+            <svg class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ match.date | date:'MMM d, h:mm a' }}
+          </div>
+          <div class="flex items-center gap-1.5 truncate ml-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="truncate text-xs">{{ match.stadium }}</span>
+          </div>
+        </div>
+        
+        <a *ngIf="match.status === 'LIVE'" routerLink="/" class="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mt-2 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Watch Live Stream
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</div>

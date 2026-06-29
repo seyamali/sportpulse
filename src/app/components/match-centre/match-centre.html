@@ -1,0 +1,215 @@
+<div class="max-w-screen-xl mx-auto p-4 py-8">
+  
+  <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-32 gap-4">
+    <div class="w-12 h-12 border-4 border-gray-700 border-t-green-500 rounded-full animate-spin"></div>
+    <p class="text-gray-400 font-medium">Loading Match Centre...</p>
+  </div>
+
+  <div *ngIf="errorMsg()" class="flex flex-col items-center justify-center py-20 gap-4 bg-gray-900/50 rounded-2xl border border-gray-800 p-8 text-center max-w-lg mx-auto">
+    <svg class="w-12 h-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <p class="text-gray-300 text-lg">{{ errorMsg() }}</p>
+    <a [routerLink]="['/']" class="mt-4 text-green-500 hover:text-green-400 font-bold uppercase text-sm">Return Home</a>
+  </div>
+
+  <div *ngIf="match() && !isLoading()" class="space-y-8 animate-[fadeInUp_0.5s_ease-out]">
+    
+    <!-- Header Banner -->
+    <div class="relative w-full rounded-3xl md:rounded-[2.5rem] bg-gray-900 border border-gray-800 overflow-hidden shadow-2xl">
+      <!-- Backgrounds -->
+      <div class="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-950 opacity-80 z-0"></div>
+      
+      <div class="relative z-10 flex flex-col p-6 md:p-12">
+        
+        <!-- Top Status Bar (Mobile & Desktop) -->
+        <div class="flex justify-center mb-6 md:mb-8">
+          <span class="px-4 py-1.5 bg-gray-800 rounded-full text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest border border-gray-700">
+            {{ match().date | date:'MMM d, yyyy' }}
+            <span *ngIf="match().status === 'UPCOMING'" class="ml-2 text-green-500">{{ match().date | date:'h:mm a' }}</span>
+            <span *ngIf="match().status === 'FINISHED'" class="ml-2 text-gray-500">FT</span>
+          </span>
+        </div>
+
+        <!-- Main Scoreboard Area -->
+        <div class="flex items-center justify-between w-full max-w-4xl mx-auto">
+          
+          <!-- Home Team -->
+          <div class="flex flex-col items-center gap-4 flex-1">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gray-950/80 border border-gray-700 p-3 md:p-5 shadow-xl flex items-center justify-center shrink-0">
+              <img [src]="match().homeFlag" class="w-full h-full object-contain drop-shadow-md" [alt]="match().homeTeam">
+            </div>
+            <h2 class="text-base sm:text-2xl md:text-5xl font-black text-white uppercase tracking-tighter text-center leading-none mt-2">
+              <span class="md:hidden">{{ match().homeTeam | slice:0:3 }}</span>
+              <span class="hidden md:block">{{ match().homeTeam }}</span>
+            </h2>
+          </div>
+
+          <!-- Score / VS -->
+          <div class="flex flex-col items-center justify-center shrink-0 px-4 md:px-12">
+            <div *ngIf="match().status !== 'UPCOMING'" class="flex items-center gap-2 md:gap-6 text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tighter">
+              <span>{{ match().homeScore }}</span>
+              <span class="text-gray-600 pb-2 md:pb-4">-</span>
+              <span>{{ match().awayScore }}</span>
+            </div>
+            <div *ngIf="match().status === 'UPCOMING'" class="text-3xl sm:text-5xl md:text-6xl font-black text-gray-600 italic tracking-tighter">
+              VS
+            </div>
+            
+            <span *ngIf="match().status === 'LIVE'" class="mt-4 md:mt-6 flex items-center gap-2 text-red-500 font-bold uppercase tracking-widest bg-red-500/10 px-3 md:px-5 py-1.5 rounded-md border border-red-500/20 text-xs md:text-sm">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Live
+            </span>
+          </div>
+
+          <!-- Away Team -->
+          <div class="flex flex-col items-center gap-4 flex-1">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gray-950/80 border border-gray-700 p-3 md:p-5 shadow-xl flex items-center justify-center shrink-0">
+              <img [src]="match().awayFlag" class="w-full h-full object-contain drop-shadow-md" [alt]="match().awayTeam">
+            </div>
+            <h2 class="text-base sm:text-2xl md:text-5xl font-black text-white uppercase tracking-tighter text-center leading-none mt-2">
+              <span class="md:hidden">{{ match().awayTeam | slice:0:3 }}</span>
+              <span class="hidden md:block">{{ match().awayTeam }}</span>
+            </h2>
+          </div>
+
+        </div>
+      </div>
+      
+      <!-- Stadium Footer -->
+      <div class="relative z-10 w-full bg-gray-950/80 border-t border-gray-800 p-3 md:p-5 text-center">
+        <span class="text-[10px] md:text-sm font-semibold text-gray-400 uppercase tracking-widest">{{ match().stadium }}</span>
+      </div>
+    </div>
+
+    <!-- Match Stats Section -->
+    <div *ngIf="stats() as s" class="bg-gray-900 border border-gray-800 rounded-3xl p-6 md:p-10 shadow-lg">
+      <div class="flex items-center justify-between mb-10">
+        <h3 class="text-2xl font-black text-white uppercase tracking-tight">Team Statistics</h3>
+        <div class="flex items-center gap-2">
+          <!-- Live Stream Button -->
+          <a *ngIf="match().status === 'LIVE'" [routerLink]="['/live']" class="flex items-center gap-2 bg-red-500 hover:bg-red-400 text-white px-5 py-2 rounded-lg font-bold transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            Watch Live
+          </a>
+          <!-- Highlights Button -->
+          <a *ngIf="match().status === 'FINISHED'" [routerLink]="['/watch', match().id]" class="flex items-center gap-2 bg-green-500 hover:bg-green-400 text-gray-900 px-5 py-2 rounded-lg font-bold transition-colors shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8 5v10l7-5-7-5z"></path></svg>
+            Watch Highlights
+          </a>
+        </div>
+      </div>
+
+      <div class="space-y-8 max-w-4xl mx-auto">
+        
+        <!-- Stat Row: Possession -->
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <span class="text-xl font-black text-white">{{ s.possessionHome }}%</span>
+            <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Possession</span>
+            <span class="text-xl font-black text-white">{{ s.possessionAway }}%</span>
+          </div>
+          <div class="flex h-3 w-full bg-gray-800 rounded-full overflow-hidden">
+            <div class="bg-green-500 h-full transition-all duration-1000 ease-out" [style.width.%]="s.possessionHome"></div>
+            <div class="bg-blue-500 h-full transition-all duration-1000 ease-out" [style.width.%]="s.possessionAway"></div>
+          </div>
+        </div>
+
+        <!-- Stat Row: Shots -->
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <span class="text-xl font-black text-white">{{ s.shotsHome }}</span>
+            <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Total Shots</span>
+            <span class="text-xl font-black text-white">{{ s.shotsAway }}</span>
+          </div>
+          <div class="flex h-2 w-full gap-2">
+            <div class="bg-gray-800 h-full rounded-full flex-1 flex justify-end overflow-hidden">
+               <div class="bg-green-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.shotsHome / (s.shotsHome + s.shotsAway)) * 100"></div>
+            </div>
+            <div class="bg-gray-800 h-full rounded-full flex-1 overflow-hidden">
+               <div class="bg-blue-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.shotsAway / (s.shotsHome + s.shotsAway)) * 100"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat Row: Shots on Target -->
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <span class="text-xl font-black text-white">{{ s.shotsOnTargetHome }}</span>
+            <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Shots on Target</span>
+            <span class="text-xl font-black text-white">{{ s.shotsOnTargetAway }}</span>
+          </div>
+          <div class="flex h-2 w-full gap-2">
+            <div class="bg-gray-800 h-full rounded-full flex-1 flex justify-end overflow-hidden">
+               <div class="bg-green-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.shotsOnTargetHome / (s.shotsOnTargetHome + s.shotsOnTargetAway)) * 100 || 0"></div>
+            </div>
+            <div class="bg-gray-800 h-full rounded-full flex-1 overflow-hidden">
+               <div class="bg-blue-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.shotsOnTargetAway / (s.shotsOnTargetHome + s.shotsOnTargetAway)) * 100 || 0"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat Row: Corners -->
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <span class="text-xl font-black text-white">{{ s.cornersHome }}</span>
+            <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Corners</span>
+            <span class="text-xl font-black text-white">{{ s.cornersAway }}</span>
+          </div>
+          <div class="flex h-2 w-full gap-2">
+            <div class="bg-gray-800 h-full rounded-full flex-1 flex justify-end overflow-hidden">
+               <div class="bg-green-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.cornersHome / (s.cornersHome + s.cornersAway)) * 100"></div>
+            </div>
+            <div class="bg-gray-800 h-full rounded-full flex-1 overflow-hidden">
+               <div class="bg-blue-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.cornersAway / (s.cornersHome + s.cornersAway)) * 100"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat Row: Fouls -->
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <span class="text-xl font-black text-white">{{ s.foulsHome }}</span>
+            <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">Fouls</span>
+            <span class="text-xl font-black text-white">{{ s.foulsAway }}</span>
+          </div>
+          <div class="flex h-2 w-full gap-2">
+            <div class="bg-gray-800 h-full rounded-full flex-1 flex justify-end overflow-hidden">
+               <div class="bg-green-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.foulsHome / (s.foulsHome + s.foulsAway)) * 100"></div>
+            </div>
+            <div class="bg-gray-800 h-full rounded-full flex-1 overflow-hidden">
+               <div class="bg-blue-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.foulsAway / (s.foulsHome + s.foulsAway)) * 100"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat Row: Yellow Cards -->
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <span class="text-xl font-black text-white">{{ s.yellowCardsHome }}</span>
+            <span class="text-sm font-bold text-gray-500 uppercase tracking-widest text-yellow-500">Yellow Cards</span>
+            <span class="text-xl font-black text-white">{{ s.yellowCardsAway }}</span>
+          </div>
+          <div class="flex h-2 w-full gap-2">
+            <div class="bg-gray-800 h-full rounded-full flex-1 flex justify-end overflow-hidden">
+               <div class="bg-yellow-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.yellowCardsHome / (s.yellowCardsHome + s.yellowCardsAway)) * 100 || 0"></div>
+            </div>
+            <div class="bg-gray-800 h-full rounded-full flex-1 overflow-hidden">
+               <div class="bg-yellow-500 h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="(s.yellowCardsAway / (s.yellowCardsHome + s.yellowCardsAway)) * 100 || 0"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <!-- Fallback for Upcoming matches -->
+    <div *ngIf="!stats() && match().status === 'UPCOMING'" class="bg-gray-900/50 border border-gray-800 rounded-3xl p-10 text-center flex flex-col items-center justify-center">
+      <svg class="w-16 h-16 text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h3 class="text-2xl font-bold text-white mb-2">Match has not started</h3>
+      <p class="text-gray-400 max-w-md">Statistics will become available once the match kicks off. Return here during the game to see live updates!</p>
+    </div>
+  </div>
+
+</div>

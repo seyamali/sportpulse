@@ -1,0 +1,82 @@
+<section *ngIf="matches && matches.length > 0" class="relative group/section">
+  <div class="flex items-end justify-between mb-8">
+    <div>
+      <h2 class="text-3xl font-black text-white uppercase tracking-tight">Today's Matches</h2>
+      <p class="text-gray-400 mt-1">Don't miss the action. Add to your calendar.</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <!-- Navigation Buttons -->
+      <div class="hidden sm:flex gap-2">
+        <button (click)="scrollUpcoming('left')" class="p-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 hover:border-gray-700 transition-colors focus:outline-none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button (click)="scrollUpcoming('right')" class="p-2 rounded-full bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 hover:border-gray-700 transition-colors focus:outline-none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+      
+      <a routerLink="/schedule" class="text-green-500 hover:text-green-400 text-sm font-bold uppercase tracking-wider flex items-center gap-1 group">
+        See All 
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Scrollable Row (Hidden Scrollbar) -->
+  <div id="upcoming-matches-container" class="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    
+    <a *ngFor="let match of matches" 
+         [routerLink]="['/match', match.id]"
+         class="block snap-start shrink-0 w-[300px] sm:w-[350px] relative rounded-3xl overflow-hidden group cursor-pointer transition-transform hover:-translate-y-1">
+      
+      <!-- Premium Glassy Background -->
+      <div class="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950 opacity-90 -z-10"></div>
+      <div class="absolute inset-0 border border-gray-700/50 rounded-3xl group-hover:border-green-500/50 transition-colors -z-10"></div>
+      
+      <!-- Abstract Glow -->
+      <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/10 blur-[50px] -z-10"></div>
+
+      <!-- Card Header -->
+      <div class="px-6 py-4 flex justify-between items-center border-b border-gray-700/30">
+        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ match.stage }}</span>
+        <span class="text-xs font-bold text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">{{ match.date | date:'MMM d, h:mm a' }}</span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-2">
+          
+          <!-- Home Team -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-16 h-16 bg-gray-900/50 rounded-full p-2 border border-gray-700 shadow-lg mb-3">
+               <img [src]="match.homeFlag" class="w-full h-full object-contain" [alt]="match.homeTeam">
+            </div>
+            <span class="text-base font-bold text-white text-center leading-tight line-clamp-1 w-full">{{ match.homeTeam }}</span>
+          </div>
+          
+          <!-- VS Badge -->
+          <div class="mx-4 flex flex-col items-center">
+            <div class="w-8 h-8 rounded-full bg-gray-950 border border-gray-700 flex items-center justify-center">
+              <span class="text-xs font-black italic text-gray-500">VS</span>
+            </div>
+          </div>
+          
+          <!-- Away Team -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-16 h-16 bg-gray-900/50 rounded-full p-2 border border-gray-700 shadow-lg mb-3">
+               <img [src]="match.awayFlag" class="w-full h-full object-contain" [alt]="match.awayTeam">
+            </div>
+            <span class="text-base font-bold text-white text-center leading-tight line-clamp-1 w-full">{{ match.awayTeam }}</span>
+          </div>
+          
+        </div>
+        
+        <!-- Stadium Footer -->
+        <div class="mt-4 text-center">
+          <span class="text-[10px] uppercase text-gray-500 font-semibold tracking-wider">{{ match.stadium }}</span>
+        </div>
+      </div>
+      
+    </a>
+  </div>
+</section>

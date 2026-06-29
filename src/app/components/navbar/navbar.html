@@ -1,0 +1,102 @@
+<div class="fixed w-full z-50 top-0 pt-4 px-4 sm:px-8 pointer-events-none">
+  <nav class="w-full mx-auto pointer-events-auto bg-gray-950/70 backdrop-blur-xl border border-gray-800/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] supports-[backdrop-filter]:bg-gray-950/50">
+    <div class="px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a routerLink="/" class="flex items-center gap-3 group shrink-0">
+          <img src="/logo.png" class="h-10 w-auto object-contain transform group-hover:scale-105 transition-transform duration-300" alt="SportPulse Logo" />
+          <span class="text-xl font-bold tracking-tight text-white">
+            Sport<span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]">Pulse</span>
+          </span>
+        </a>
+        
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center gap-1">
+          <a routerLink="/" 
+             [routerLinkActiveOptions]="{exact: true}"
+             routerLinkActive="!text-green-400 bg-white/5" 
+             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200 relative group">
+            Home
+            <span class="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-green-500/0 via-green-500/70 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+          </a>
+          
+          <a routerLink="/live" 
+             routerLinkActive="bg-white/5 text-green-400" 
+             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200 relative group">
+            Live Stream
+            <span class="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-green-500/0 via-green-500/70 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+          </a>
+          
+          <a routerLink="/schedule" 
+             routerLinkActive="bg-white/5 text-green-400" 
+             class="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-200 relative group">
+            Match Schedule
+            <span class="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-green-500/0 via-green-500/70 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+          </a>
+        </div>
+        
+        <!-- Right Side -->
+        <div class="flex items-center gap-4">
+          <!-- Live Indicator (Desktop only) -->
+          <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 mr-2">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span class="text-xs font-semibold text-green-400 uppercase tracking-widest">Live Now</span>
+          </div>
+
+          <!-- Search Icon -->
+          <button class="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-gray-800 hidden sm:block">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </button>
+
+          <!-- User Profile Icon -->
+          <button class="text-gray-400 hover:text-white transition-colors p-2 rounded-full hover:bg-gray-800">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </button>
+          
+          <!-- Mobile Menu Button -->
+          <button type="button" 
+                  (click)="toggleMenu()"
+                  class="md:hidden inline-flex items-center justify-center p-2 w-10 h-10 text-gray-400 bg-gray-900 rounded-xl hover:bg-gray-800 hover:text-white border border-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors">
+            <span class="sr-only">Open main menu</span>
+            <svg *ngIf="!isMobileMenuOpen()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg *ngIf="isMobileMenuOpen()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu Dropdown -->
+    <div *ngIf="isMobileMenuOpen()" 
+         class="md:hidden border-t border-gray-800/80 bg-gray-900/50 backdrop-blur-xl rounded-b-2xl animate-[fadeIn_0.2s_ease-out]">
+      <div class="px-4 pt-2 pb-4 space-y-1">
+        <a routerLink="/" 
+           [routerLinkActiveOptions]="{exact: true}"
+           routerLinkActive="bg-green-500/10 text-green-400 border-green-500/30" 
+           (click)="toggleMenu()"
+           class="block px-4 py-3 rounded-xl text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-white border border-transparent transition-colors">
+          Home
+        </a>
+        <a routerLink="/live" 
+           routerLinkActive="bg-green-500/10 text-green-400 border-green-500/30" 
+           (click)="toggleMenu()"
+           class="block px-4 py-3 rounded-xl text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-white border border-transparent transition-colors">
+          Live Stream
+        </a>
+        <a routerLink="/schedule" 
+           routerLinkActive="bg-green-500/10 text-green-400 border-green-500/30" 
+           (click)="toggleMenu()"
+           class="block px-4 py-3 rounded-xl text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-white border border-transparent transition-colors">
+          Match Schedule
+        </a>
+      </div>
+    </div>
+  </nav>
+</div>

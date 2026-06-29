@@ -1,0 +1,42 @@
+<section *ngIf="matches && matches.length > 0">
+  <div class="flex items-end justify-between mb-8">
+    <div>
+      <h2 class="text-3xl font-black text-white uppercase tracking-tight">Recent Results</h2>
+      <p class="text-gray-400 mt-1">Catch up on the latest scores.</p>
+    </div>
+  </div>
+
+  <!-- Grid Layout -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <a *ngFor="let match of matches" 
+       [routerLink]="['/match', match.id]"
+       class="block bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-colors cursor-pointer">
+      
+      <!-- Top Bar -->
+      <div class="px-5 py-3 border-b border-gray-800 bg-gray-950/50 flex justify-between items-center">
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ match.stage }}</span>
+        <span class="text-xs text-gray-400">{{ match.date | date:'MMM d' }}</span>
+      </div>
+
+      <!-- Score Body -->
+      <div class="p-5">
+        <!-- Home -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <img [src]="match.homeFlag" class="w-8 h-8 object-contain" [alt]="match.homeTeam">
+            <span class="font-bold text-white text-lg" [ngClass]="{'opacity-50': isLoser(match.homeScore, match.awayScore)}">{{ match.homeTeam }}</span>
+          </div>
+          <span class="text-2xl font-black text-white">{{ match.homeScore !== null ? match.homeScore : '-' }}</span>
+        </div>
+        <!-- Away -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img [src]="match.awayFlag" class="w-8 h-8 object-contain" [alt]="match.awayTeam">
+            <span class="font-bold text-white text-lg" [ngClass]="{'opacity-50': isLoser(match.awayScore, match.homeScore)}">{{ match.awayTeam }}</span>
+          </div>
+          <span class="text-2xl font-black text-white">{{ match.awayScore !== null ? match.awayScore : '-' }}</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
