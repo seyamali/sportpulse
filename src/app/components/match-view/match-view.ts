@@ -63,10 +63,10 @@ export class MatchView implements OnInit, OnDestroy {
 
     if (this.isBrowser && isLocalhost) {
       streamUrl = 'http://localhost:8080/' + channel.url;
+    } else if (this.isBrowser && !isSafariOrIOS) {
+      // Route production Android/Chrome traffic through the newly deployed Render proxy!
+      streamUrl = 'https://new-web-service-it-looks-like-youre-loik.onrender.com/' + channel.url;
     }
-    // In production, we use the raw URL directly. Public proxies (like corsproxy.io) 
-    // are actively blocked by ToffeeLive (403 Forbidden). If a stream requires CORS 
-    // on Android, you must run the local proxy or host it on a residential server.
     
     if (this.hls) {
       this.hls.destroy();
