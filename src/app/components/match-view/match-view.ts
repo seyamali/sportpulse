@@ -22,8 +22,10 @@ export class MatchView implements OnInit, OnDestroy {
   private hls: Hls | null = null;
   isLoading = signal(true);
   errorMsg = signal('');
+  supportsPiP = signal(false);
 
   async ngOnInit() {
+    this.supportsPiP.set(document.pictureInPictureEnabled);
     try {
       const res = await fetch('/channels.json');
       const data = await res.json();
@@ -84,6 +86,19 @@ export class MatchView implements OnInit, OnDestroy {
     } else {
       this.errorMsg.set('Your browser does not support HLS video playback.');
       this.isLoading.set(false);
+    }
+  }
+
+  async togglePiP() {
+    const video = this.videoElementRef.nativeElement;
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (document.pictureInPictureEnabled) {
+        await video.requestPictureInPicture();
+      }
+    } catch (error) {
+      console.error('Failed to enter/exit Picture-in-Picture', error);
     }
   }
 

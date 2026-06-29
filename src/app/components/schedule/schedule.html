@@ -1,105 +1,173 @@
-<div class="max-w-screen-xl mx-auto p-4 py-8">
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
-      <svg class="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      Today's Matches
-    </h1>
-    <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm font-medium border border-gray-700 flex items-center gap-2">
-      <span class="w-2 h-2 rounded-full bg-green-500"></span> Live Data
-    </span>
+<div class="max-w-screen-xl mx-auto p-4 py-8 md:py-12">
+  
+  <!-- Header & Filters -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+    <div class="flex flex-col gap-2">
+      <h1 class="text-3xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tighter uppercase">
+        <svg class="w-8 h-8 md:w-10 md:h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        Match Schedule
+      </h1>
+      <p class="text-gray-400 font-medium">Real-time calendar of upcoming and live matches.</p>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="flex items-center gap-2 p-1.5 bg-gray-900 border border-gray-800 rounded-xl overflow-x-auto custom-scrollbar">
+      <button (click)="activeTab.set('all')" 
+              [ngClass]="activeTab() === 'all' ? 'bg-gray-800 text-white shadow-md' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'"
+              class="px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-widest transition-all whitespace-nowrap">
+        All Matches
+      </button>
+      <button (click)="activeTab.set('live')" 
+              [ngClass]="activeTab() === 'live' ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'"
+              class="px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap">
+        <span *ngIf="activeTab() === 'live'" class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+        Live
+      </button>
+      <button (click)="activeTab.set('upcoming')" 
+              [ngClass]="activeTab() === 'upcoming' ? 'bg-gray-800 text-white shadow-md' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'"
+              class="px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-widest transition-all whitespace-nowrap">
+        Upcoming
+      </button>
+      <button (click)="activeTab.set('finished')" 
+              [ngClass]="activeTab() === 'finished' ? 'bg-gray-800 text-white shadow-md' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'"
+              class="px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-widest transition-all whitespace-nowrap">
+        Finished
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-20 gap-4">
-    <div class="w-12 h-12 border-4 border-gray-700 border-t-green-500 rounded-full animate-spin"></div>
-    <p class="text-gray-400 font-medium">Fetching real-time data...</p>
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-32 gap-6 bg-gray-900/20 rounded-3xl border border-gray-800/50">
+    <div class="w-16 h-16 border-4 border-gray-800 border-t-green-500 rounded-full animate-spin"></div>
+    <p class="text-gray-400 font-bold uppercase tracking-widest">Syncing Calendar...</p>
   </div>
   
-  <div *ngIf="errorMsg()" class="flex flex-col items-center justify-center py-20 gap-4 bg-gray-900/50 rounded-2xl border border-gray-800 p-8 text-center max-w-lg mx-auto">
-    <svg class="w-12 h-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <p class="text-gray-300 text-lg">{{ errorMsg() }}</p>
+  <!-- Error / Empty State -->
+  <div *ngIf="errorMsg() && !isLoading()" class="flex flex-col items-center justify-center py-20 gap-4 bg-gray-900/50 rounded-3xl border border-gray-800 p-8 text-center max-w-2xl mx-auto">
+    <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-2">
+      <svg class="w-10 h-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <h3 class="text-2xl font-bold text-white tracking-tight">No Matches Found</h3>
+    <p class="text-gray-400 text-lg">{{ errorMsg() }}</p>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!isLoading() && matches().length > 0">
+  <!-- Empty State (No matches for tab) -->
+  <div *ngIf="!isLoading() && !errorMsg() && filteredMatches().length === 0" class="flex flex-col items-center justify-center py-20 gap-4 bg-gray-900/30 rounded-3xl border border-gray-800/50 text-center">
+    <p class="text-gray-400 text-lg font-medium">No matches available in this category.</p>
+    <button (click)="activeTab.set('all')" class="mt-2 text-green-500 hover:text-green-400 font-bold uppercase tracking-widest text-sm transition-colors">
+      View All Matches
+    </button>
+  </div>
+
+  <!-- List View Layout -->
+  <div class="flex flex-col gap-4" *ngIf="!isLoading() && filteredMatches().length > 0">
     
-    <div *ngFor="let match of matches()" 
+    <div *ngFor="let match of filteredMatches()" 
          [routerLink]="['/match', match.id]"
-         class="bg-gray-900/50 cursor-pointer backdrop-blur-md border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-600 transition-all duration-300 group flex flex-col h-full shadow-lg hover:shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+         class="bg-gray-900/60 backdrop-blur-md border border-gray-800/80 rounded-2xl overflow-hidden hover:bg-gray-800 hover:border-gray-600 transition-all duration-300 group cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(34,197,94,0.08)] relative">
       
-      <!-- Card Header -->
-      <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/80">
-        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider truncate mr-2">{{ match.group }}</span>
+      <!-- Mobile: Top Bar -->
+      <div class="md:hidden flex justify-between items-center p-3 border-b border-gray-800 bg-gray-950/50">
+        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate max-w-[60%]">{{ match.group }}</span>
         
-        <span *ngIf="match.status === 'LIVE'" class="flex items-center gap-1.5 px-2 py-0.5 bg-red-500/10 text-red-500 text-xs font-bold rounded-md uppercase tracking-widest shrink-0">
+        <span *ngIf="match.status === 'LIVE'" class="flex items-center gap-1.5 px-2 py-0.5 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black rounded uppercase tracking-widest">
           <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE
         </span>
-        <span *ngIf="match.status === 'UPCOMING'" class="px-2 py-0.5 bg-gray-800 text-gray-300 text-xs font-bold rounded-md uppercase tracking-widest shrink-0">
+        <span *ngIf="match.status === 'UPCOMING'" class="px-2 py-0.5 bg-gray-800 text-gray-400 text-[10px] font-black rounded uppercase tracking-widest">
           UPCOMING
         </span>
-        <span *ngIf="match.status === 'FINISHED'" class="px-2 py-0.5 bg-gray-800 text-gray-400 text-xs font-bold rounded-md uppercase tracking-widest shrink-0">
+        <span *ngIf="match.status === 'FINISHED'" class="px-2 py-0.5 bg-gray-800 text-gray-500 text-[10px] font-black rounded uppercase tracking-widest">
           FT
         </span>
       </div>
 
-      <!-- Teams Area -->
-      <div class="p-6 flex-1 flex justify-between items-center relative overflow-hidden">
+      <!-- Main Row Content -->
+      <div class="flex flex-col md:flex-row items-center p-4 md:p-6 relative z-10">
         
-        <!-- Home Team -->
-        <div class="flex flex-col items-center gap-3 z-10 w-2/5">
-          <img [src]="match.homeFlag" alt="Home Team" class="w-16 h-16 object-contain drop-shadow-lg group-hover:scale-110 transition-transform">
-          <span class="font-bold text-white text-center text-sm md:text-base leading-tight">{{ match.homeTeam }}</span>
-        </div>
-
-        <!-- VS Badge or Score -->
-        <div class="flex flex-col items-center justify-center z-10 w-1/5">
-          <div *ngIf="match.status === 'UPCOMING'" class="w-10 h-10 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-bold text-gray-400 z-10 shadow-inner">
-            VS
-          </div>
-          <div *ngIf="match.status !== 'UPCOMING'" class="flex flex-col items-center">
-            <span class="text-3xl font-black text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-              {{ match.homeScore !== null ? match.homeScore : 0 }} - {{ match.awayScore !== null ? match.awayScore : 0 }}
+        <!-- Left: Date/Group (Desktop Only) -->
+        <div class="hidden md:flex flex-col gap-1 w-1/5 shrink-0 border-r border-gray-800 pr-6">
+          <span class="text-sm font-bold text-white">{{ match.date | date:'MMM d, yyyy' }}</span>
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest truncate">{{ match.group }}</span>
+          <div class="mt-2">
+            <span *ngIf="match.status === 'LIVE'" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black rounded-md uppercase tracking-widest shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> LIVE NOW
+            </span>
+            <span *ngIf="match.status === 'UPCOMING'" class="inline-block px-2.5 py-1 bg-gray-800 text-gray-400 text-[10px] font-black rounded-md uppercase tracking-widest">
+              UPCOMING
+            </span>
+            <span *ngIf="match.status === 'FINISHED'" class="inline-block px-2.5 py-1 bg-gray-950 text-gray-500 text-[10px] font-black rounded-md uppercase tracking-widest border border-gray-800">
+              FINISHED
             </span>
           </div>
         </div>
 
-        <!-- Away Team -->
-        <div class="flex flex-col items-center gap-3 z-10 w-2/5">
-          <img [src]="match.awayFlag" alt="Away Team" class="w-16 h-16 object-contain drop-shadow-lg group-hover:scale-110 transition-transform">
-          <span class="font-bold text-white text-center text-sm md:text-base leading-tight">{{ match.awayTeam }}</span>
-        </div>
-        
-        <!-- Decorative Background Gradient -->
-        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent opacity-50"></div>
-      </div>
-
-      <!-- Card Footer -->
-      <div class="p-4 bg-gray-900/90 border-t border-gray-800 flex flex-col gap-3">
-        <div class="flex items-center justify-between text-sm text-gray-400">
-          <div class="flex items-center gap-1.5 font-medium">
-            <svg class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {{ match.date | date:'MMM d, h:mm a' }}
+        <!-- Center: Match Teams & Score (Desktop) / Full Width (Mobile) -->
+        <div class="flex flex-row items-center justify-between w-full md:w-3/5 md:px-8">
+          
+          <!-- Home Team -->
+          <div class="flex flex-col md:flex-row items-center gap-3 md:gap-4 flex-1 justify-end">
+            <span class="hidden md:block font-bold text-white text-lg tracking-tight text-right group-hover:text-green-400 transition-colors">{{ match.homeTeam }}</span>
+            <span class="md:hidden font-bold text-white text-sm text-center tracking-tight">{{ match.homeTeam | slice:0:15 }}</span>
+            <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gray-950/50 border border-gray-800 p-2.5 shrink-0 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+              <img [src]="match.homeFlag" alt="Home Team" class="w-full h-full object-contain drop-shadow-md">
+            </div>
           </div>
-          <div class="flex items-center gap-1.5 truncate ml-2">
+
+          <!-- Score / Time -->
+          <div class="flex flex-col items-center justify-center shrink-0 w-24 md:w-32 px-2">
+            <div *ngIf="match.status === 'UPCOMING'" class="flex flex-col items-center">
+              <span class="text-lg md:text-2xl font-black text-white tracking-tighter">{{ match.date | date:'h:mm a' }}</span>
+            </div>
+            
+            <div *ngIf="match.status !== 'UPCOMING'" class="flex flex-col items-center">
+              <span class="text-3xl md:text-4xl font-black text-white tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                <span [ngClass]="{'text-green-400': match.status === 'LIVE'}">{{ match.homeScore !== null ? match.homeScore : 0 }}</span>
+                <span class="text-gray-600 mx-1 md:mx-2">-</span>
+                <span [ngClass]="{'text-green-400': match.status === 'LIVE'}">{{ match.awayScore !== null ? match.awayScore : 0 }}</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Away Team -->
+          <div class="flex flex-col-reverse md:flex-row items-center gap-3 md:gap-4 flex-1 justify-start">
+            <div class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gray-950/50 border border-gray-800 p-2.5 shrink-0 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+              <img [src]="match.awayFlag" alt="Away Team" class="w-full h-full object-contain drop-shadow-md">
+            </div>
+            <span class="hidden md:block font-bold text-white text-lg tracking-tight text-left group-hover:text-green-400 transition-colors">{{ match.awayTeam }}</span>
+            <span class="md:hidden font-bold text-white text-sm text-center tracking-tight">{{ match.awayTeam | slice:0:15 }}</span>
+          </div>
+          
+        </div>
+
+        <!-- Right: Action / Stadium (Desktop Only) -->
+        <div class="hidden md:flex flex-col items-end justify-center w-1/5 shrink-0 border-l border-gray-800 pl-6 h-full">
+          <div class="flex items-center gap-1.5 text-gray-400 mb-3 justify-end w-full">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span class="truncate text-xs">{{ match.stadium }}</span>
+            <span class="text-[11px] font-semibold uppercase tracking-widest truncate max-w-[120px]">{{ match.stadium }}</span>
+          </div>
+          
+          <div *ngIf="match.status === 'LIVE'" class="bg-red-500 hover:bg-red-400 text-white font-bold text-xs uppercase tracking-widest px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-[0_0_10px_rgba(239,68,68,0.3)]">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            </svg>
+            Watch
+          </div>
+          
+          <div *ngIf="match.status !== 'LIVE'" class="bg-gray-800 text-gray-300 font-bold text-xs uppercase tracking-widest px-4 py-2 rounded-lg group-hover:bg-green-500 group-hover:text-gray-900 transition-colors flex items-center gap-2">
+            Details
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
           </div>
         </div>
-        
-        <a *ngIf="match.status === 'LIVE'" routerLink="/" class="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mt-2 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Watch Live Stream
-        </a>
+
       </div>
       
     </div>

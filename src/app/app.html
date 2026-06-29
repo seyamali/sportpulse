@@ -1,4 +1,7 @@
-<app-navbar></app-navbar>
-<main class="min-h-screen bg-gray-950 pt-20">
-  <router-outlet></router-outlet>
-</main>
+<div class="flex flex-col min-h-screen bg-gray-950">
+  <app-navbar></app-navbar>
+  <main class="flex-1 pt-20 flex flex-col">
+    <router-outlet></router-outlet>
+  </main>
+  <app-footer></app-footer>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -26,6 +26,16 @@ export class Schedule implements OnInit {
   matches = signal<Match[]>([]);
   isLoading = signal(true);
   errorMsg = signal('');
+  
+  activeTab = signal<'all' | 'live' | 'upcoming' | 'finished'>('all');
+
+  filteredMatches = computed(() => {
+    const tab = this.activeTab();
+    const all = this.matches();
+    if (tab === 'all') return all;
+    return all.filter(m => m.status.toLowerCase() === tab);
+  });
+
 
   async ngOnInit() {
     try {
