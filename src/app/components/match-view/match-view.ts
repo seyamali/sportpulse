@@ -56,7 +56,22 @@ export class MatchView implements OnInit, OnDestroy {
       this.hls = null;
     }
 
-    if (Hls.isSupported()) {
+    const isSafariOrIOS = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent) || /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isSafariOrIOS && video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Prioritize native HLS player for iOS/Safari. It naturally bypasses CORS restrictions
+      // that block hls.js XHR requests.
+      video.src = streamUrl;
+      video.addEventListener('loadedmetadata', () => {
+        this.isLoading.set(false);
+        video.play().catch(e => console.log("Autoplay prevented", e));
+      });
+      video.addEventListener('error', () => {
+        this.errorMsg.set('Failed to load the stream natively.');
+        this.isLoading.set(false);
+      });
+    } else if (Hls.isSupported()) {
+      // Fallback to hls.js for Android, Windows, Chrome, etc.
       this.hls = new Hls({
         debug: false,
       });
@@ -72,17 +87,11 @@ export class MatchView implements OnInit, OnDestroy {
           this.isLoading.set(false);
         }
       });
-    }
-    // Safari supports HLS natively
-    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = streamUrl;
       video.addEventListener('loadedmetadata', () => {
         this.isLoading.set(false);
         video.play().catch(e => console.log("Autoplay prevented", e));
-      });
-      video.addEventListener('error', () => {
-        this.errorMsg.set('Failed to load the stream natively.');
-        this.isLoading.set(false);
       });
     } else {
       this.errorMsg.set('Your browser does not support HLS video playback.');
